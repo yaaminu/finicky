@@ -10,8 +10,7 @@ and simple to use alternative for data validation.
 
 ```python
     from datetime import datetime
-    from pyval import Schema
-    from pyval.validators import validators
+    from pyval import Schema, validators
 
     repo = {"name":"Pyval", "version":"0.0.1", "stars":"2000", "last_published":"2021-02-02", "languages":["python","c++"]} 
     repo_schema = Schema({
