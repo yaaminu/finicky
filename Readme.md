@@ -1,6 +1,6 @@
-Pyval - Easy data validation 
+# Pyval - Easy data validation 
 
-#Motivation 
+## Motivation 
 There are many libraries available for validating data in python such as pydantic, volouptous, validino, jsonvalidator,
 but they all surprisingly require too much boilerplate and code ceremony. The goal of this library is provide a much easy 
 and simple to use alternative for data validation. 
