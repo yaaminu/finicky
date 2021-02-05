@@ -1,2 +1,2 @@
-from .schema import Schema
+from .schema import *
 from .validators import *
