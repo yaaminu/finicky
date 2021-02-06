@@ -33,6 +33,15 @@ class TestSchema:
         validate(schema=schema, data=repo, hook=hook_mock)
         hook_mock.assert_called_once_with(repo)
 
+    def test_validate_must_only_invoke_hook_only_when_field_validations_succeed(self):
+        repo = {"name": "pyval", "version": "1.0.0", "stars": "2000"}
+        mock_validator = Mock()
+        mock_validator.side_effect = ValidationException("an error occured")
+        schema = {"name": mock_validator, "version": Mock(), "stars": Mock()}
+        hook_mock = Mock()
+        validate(schema=schema, data=repo, hook=hook_mock)
+        hook_mock.assert_not_called()
+
     def test_validate_must_include_hook_errors_in_returned_errors(self):
         repo = {"name": "pyval", "version": "1.0.0", "stars": "2000"}
         schema = {"name": Mock(), "version": Mock(), "stars": Mock()}

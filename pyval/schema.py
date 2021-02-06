@@ -27,8 +27,9 @@ def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> T
     :param data: The input data to be validated, cannot be none
     :param hook: An optional custom hook function that shall be invoked  when all fields have passed validation. It is
                  especially useful in situations where the validity of the input also conditionally relies on multiple
-                 fields. it takes as an input, the newly validated input and must return the validated on success
-                 or raise a validation exception on failure. This hook may modify the input before returning it.
+                 fields. it takes as an input, the newly validated data and must return the input on success
+                 or raise a `pyval.validators.ValidationException` on failure. This hook may modify the input before
+                 returning it.
     :return: A tuple of the form (errors:str[], validated_data)
     """
     errors = []
@@ -37,7 +38,7 @@ def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> T
             schema[key](data.get(key))
         except ValidationException as e:
             errors.append(e.message)
-    if hook:
+    if hook and not errors:
         try:
             data = hook(data)
         except ValidationException as e:
