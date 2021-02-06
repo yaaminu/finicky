@@ -189,3 +189,28 @@ class TestIsDateValidator:
     @pytest.mark.parametrize("input", ["2020-12-20", "2021-01-31", "1999-08-12"])
     def test_must_return_newly_validated_date_as_datetime_object(self, input):
         assert is_date()(input) == datetime.datetime.strptime(input, "%Y-%m-%d")
+
+
+class TestDictValidator:
+    """
+    1. must reject None input when field is required
+    2. must return default value when field is not required and default provided
+    3. must raise argument error when required is true and default value is provided
+    4. must validate input against schema
+    5. must not require schema
+    """
+    pass
+
+
+class TestListValidator:
+    """
+    1. must reject none input whend field is required
+    2. must return default value when field isnot required and default is provided
+    3. must raise invaldi argument error when field is required and default is not none
+    4. must validate all entries against the validator.
+    5. must require all entries to pass validation by default
+    6. when all is set to false, must require that at least one entry pass valdiation
+    7. must return only validated entries
+    6. on error, must return all errors encountered
+    """
+    pass

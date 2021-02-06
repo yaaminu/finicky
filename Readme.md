@@ -73,30 +73,112 @@ They are essentially functions that take in one argument (the data to be validat
 success or raise Validation Exception on failure. 
 
 #### is_str 
-A factory function that returns a validator for strings. It takes in the following arguments
-
+A factory function that returns a validator for validating texts.
+ 
+It takes in the following arguments:
 1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
 2. `default`: The default value. Only allowed for non-required fields. 
-3. `min_len`: The minimum length allowed, default to 0 
-4. `max_len`: The maximum length allowed, default to 0
+3. `min_len`: The minimum length allowed, defaults to 0 
+4. `max_len`: The maximum length allowed, defaults to `None`
 5. `pattern`: An optional regular expression to which the input must match. Pattern matching is accomplished with 
               the standard python `re` package.  Be careful when using this on untrusted input as you may expose
               yourself to regular expression denial attacks. 
 
 #### is_int
+A factory function that returns a validator for validating integers.
+
+It takes in the following arguments:
+1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
+2. `default`: The default value. Only allowed for non-required fields. 
+3. `min`: The minimum value allowed, defaults to 0 
+4. `max`: The maximum value allowed, defaults to `None`
+
 
 #### is_float
+A factory function that returns a validator for validating floating point numbers. 
+
+It takes in the following arguments:
+1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
+2. `default`: The default value. Only allowed for non-required fields. 
+3. `min`: The minimum value allowed, defaults to 0 
+4. `max`: The maximum value allowed, defaults to `None`
+5. `round_to`: The number of decimal places to which the input must be rounded to. 
 
 #### is_date
+A factory function that returns a validator for validating dates.
+The date validator can work directly with `datetime.datetime` objects or date strings. 
+
+It takes in the following arguments:
+1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
+2. `default`: The default value. Only allowed for non-required fields. 
+3. `min`: The minimum date allowed, defaults to `None` 
+4. `max`: The maximum date allowed, defaults to `None`
+5. `format`: The format in which date is formatted. This is only used when the input is a string literal. It's 
+             important to note that python's date formatter is not forgiving so all fields specified in 
+             the format must be present in the input string. Example the format "%Y-%m-%d %H:%M" can't work with
+             "2020-12-12 12:30:20" because the format doesn't include a millisecond field
 
 #### is_list
+A validator factory that returns a function for validating lists. By default, all entries must pass the validation else
+the field would be considered invalid. This can be overridden by setting `all` to `false` (see below). 
+
+It takes in the following arguments:
+1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
+2. `default`: The default value. Only allowed for non-required fields. 
+3. `min_len`: The minimum number of entries allowed, defaults to 0
+4. `max_len`: The maximum number of entries, defaults to `None`
+5. `validator`: A validator for validating each entry in the list. 
+6. `all`: When `True`, all fields must pass validation for this list to be considered valid. When `False` at least one
+           entry must pass validation for this list to be considered valid. Only entries that pass validation shall 
+           be returned. 
 
 #### is_dict
+A validator factory that returns a function for validating python dictionaries.
 
+It takes in the following arguments:
+1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
+2. `default`: The default value. Only allowed for non-required fields. 
+5. `schema`: A schema for validating this dictionary, same as the schema described above. 
+
+   
 #### custom validators
+In some situations where the built-in validators doesn't work for you, pyval allows you to define your own validator. 
+Validators are essentially functions that take in a single input and return the newly validated input on success or 
+raise a `pyval.validators.ValidationException` for invalid input. A simple example maybe checking if a field is a valid
+ip-address. 
+```python
+import re
+from pyval.validators import ValidationException, is_str
+from pyval import validate
+
+def is_ipv4_address(input):
+    if not input:
+        raise ValidationException("this field is required")
+    input = input.strip()
+    if not re.match(r"\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}", input):
+        raise ValidationException("This field must be an ipv4 address")
+    parts = input.split(".") # this should produce 4 parts else the regex text should have failed
+    assert len(parts) == 4
+    if any(part > 255 for part in parts):
+        raise ValidationException("This field must be a valid ipv4 address") 
+    return input
+
+my_schema = {
+    "sender_ip":is_ipv4_address,
+    "message":is_str(min_len=1, max_len=200) 
+}
+
+err, val = validate(schema=my_schema)
+## code continues
+```  
+
 
 ### Handling Errors 
+All validation errors are returned in a list with the field name prepended to the error message. An input is considered
+invalid if this list is not empty. 
 
+#### contributing
+Spot a bug? feature request? want to improve documentation? Kindly open an issue or make a pull request, your feedback 
+is welcome.
 
-#### contribution
 

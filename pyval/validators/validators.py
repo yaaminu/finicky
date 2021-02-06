@@ -177,4 +177,46 @@ def is_date(required: bool = False, default: datetime = None, format: str = "%Y-
     return func
 
 
-__all__ = ("ArgumentError", "ValidationException", "is_int", "is_float", "is_date", "is_str")
+def is_dict(schema: dict, required: bool = True, default: dict = {}) -> Callable[[any], dict]:
+    """
+    A validator factory that returns a function for validating python dictionaries.
+
+    :param schema: A schema for validating this dictionary, same as the schema described above.
+    :param required:`True` when the field is required, `False` otherwise. `True` by default
+    :param default: The default value. Only allowed for non-required fields.
+    :return: A function that when invoked with a dictionary shall validate it against the criteria specified above
+
+    :raises ArgumentError: When both required and default is set
+    """
+
+    def func(input_val: any) -> dict:
+        raise NotImplementedError()
+
+    return func
+
+
+def is_list(validator: Callable[[any], any], required=True, default=(), min_len=0, max_len=None, all=True) \
+        -> Callable[[any], list]:
+    """
+    A validator factory that returns a function for validating lists. By default, all entries must pass the validation
+    else the field would be considered invalid. This can be overridden by setting `all` to `false` (see below).
+
+    :param validator: A validator for validating each entry in the list.
+    :param required: `True` when the field is required, `False` otherwise. `True` by default
+    :param default:  The default value. Only allowed for non-required fields.
+    :param min_len: The minimum number of entries allowed, defaults to 0
+    :param max_len: The maximum number of entries, defaults to `None`
+    :param all: When `True`, all fields must pass validation for this list to be considered valid. When `False` at
+                least one entry must pass validation for this list to be considered valid. Only entries that pass
+                validation shall be returned.
+    :return: A function that when invoked with a list shall validate it against the criteria specified above
+
+    :raises ArgumentError: When both required and default is set
+    """
+
+    def func(input_val: any) -> list:
+        raise NotImplementedError()
+
+    return func
+
+__all__ = ("ArgumentError", "ValidationException", "is_int", "is_float", "is_date", "is_str", "is_dict", "is_list")
