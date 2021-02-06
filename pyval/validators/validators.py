@@ -39,7 +39,7 @@ def is_int(required: bool = False, default: int = None, min: int = None, max: in
         try:
             if isinstance(value, float):
                 raise ValueError()
-            value = int(value)
+            value = int(str(value))
             if min is not None and value < min:
                 raise ValidationException(f"'{value}' is less than minimum allowed ({min})")
             if max is not None and value > max:
@@ -76,7 +76,7 @@ def is_float(required: bool = False, default: float = None, min: float = None, m
         if not required and value is None:
             return None
         try:
-            value = round(float(value), round_to)
+            value = round(float(str(value)), round_to)
             if min is not None and value < min:
                 raise ValidationException(f"'{value}' is less than minimum allowed ({min})")
             if max is not None and value > max:
