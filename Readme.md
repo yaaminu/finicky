@@ -20,29 +20,55 @@ easier to use alternative.
     
     errors, validated_repo = repo_schema.validate(data=repo)
     if errors: #validation failed
-        for field, msg in errors:
-            print(field, msg)
+        for key in errors.keys():
+            print(f"{key}: {errors[key]}")
     else:
         use_validated_data(validated_repo)
         # .. more code
 ```
 
 ### Schemas
-Schemas is a case-sensitive mapping of field names to their corresponding validators. This library comes with standard
-predifined valdators that can be used right away. Pyval comes with set of predefined validators that cover most use
-cases but you may define custom ones if the inbuilt validator doesnt work for your case. These validators are described
-in the vadiators section.
+A schema is a case-sensitive mapping of field names to their corresponding validators. Pyval comes with set
+of predefined validators that cover most use cases but you may define custom ones if the inbuilt validators don't work 
+for your use case. These validators are described in the validators section.
+**Example**
+```python
+repo_schama = {
+    "name": name_validator,
+    "version": version_valdiator,  
+    "stars":stars_validator
+}
+```
 
-A validator is a function that when invoked raises a `pyval.validators.ValidationException` when validation fails and 
-returns the newly validated data on success. 
+#### Validators
+A validator is a function that takes a single argument and raises a `pyval.validators.ValidationException` when its 
+argument is invalid or returns the input successful validation. The input may be modified before returning it. 
+```python
+import re
+def version_validator(input:any)-> str:
+    input = str(input).strip()
+    if re.match(r"\A\d+\.\d+\.\d+\Z", input):
+        return input
+    raise ValidationException("validation failed")
+```
 
 #### Hooks
 In some situations, the validity of an input may depend on complex conditions and relationship between multiple fields.
 Pyval allows you to define a function that shall be invoked with the input data after all field level validation have
-succeeded. Example, a price data may contain all valid fields but you may want to ensure that selling price is always
-greater than cost rice. Hooks are useful for these kind of checks. 
+succeeded. This hook can then run the necessary validation returning the input on success or raising a
+ValidationException on success. Example, a price data may contain all valid fields but you may want to ensure that
+selling price is always greater than cost rice. Hooks are useful for these kind of checks. 
 
 **Example Usage**
+```python
+def hook(price): 
+    # hook will only be called if all fields have passed validation 
+    if price["selling_price"] < price["cost_price"]:
+        raise  ValidationException("selling price cannot be less than cost price")
+    return price
+```
+
+#### Putting It All Together
 ```python
 from pyval.schema import validate
 from pyval.validators import  is_int,is_float, ValidationException
@@ -53,24 +79,18 @@ schema = {
     "cost_price":is_float(min=0.1, round_to=2, required=True), 
     "selling_price":is_float(min=0.1, round_to=2, required=True)
 }
-
-def hook(price): 
-    # hook will only be called if all fields have passed validation 
-    if price["selling_price"] < price["cost_price"]:
-        raise  ValidationException("selling price cannot be less than cost price")
-    return price
-
-errors, validated_price = validate(schema=schema, data=data, hook=hook)
+errors, validated_price = validate(schema=schema, data=data, hook=price_hook)
 if errors:
    print(f"errors occurred {errors}")
 else:
    use_price_data(validated_price)
 ```
 
-### Validators
-Validators do all the heavy lifting and Pyval comes with predefined valdiators that you can use right away.
-They are essentially functions that take in one argument (the data to be validated) and return the validated data on
-success or raise Validation Exception on failure. 
+
+### Built-in Validators
+Pyval comes with predefined validators that you can use right away. They are essentially factory functions that returns
+another function that take in one argument (the data to be validated) and return the validated data on success or raise
+`ValidationException` on failure. 
 
 #### is_str 
 A factory function that returns a validator for validating texts.
