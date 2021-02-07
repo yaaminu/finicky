@@ -1,9 +1,8 @@
 # Pyval - Easy data validation 
 
 ## Motivation 
-There are many libraries available for validating data in python such as pydantic, volouptous, validino, jsonvalidator,
-but they all surprisingly require too much boilerplate and code ceremony. The goal of this library is to provide an
-easier to use alternative. 
+There are many libraries available for validating data in python but they all surprisingly require too much boilerplate 
+and code ceremony even for simple use cases. The goal of this library is to provide an easier to use alternative. 
 
 
 ## Getting Started
@@ -194,8 +193,12 @@ err, val = validate(schema=my_schema, data={"sender_ip":"127.0.0.1", "message":"
 
 
 ### Handling Errors 
-All validation errors are returned in a list with the field name prepended to the error message. An input is considered
-invalid if this list is not empty. 
+
+
+### Testing 
+```shell script
+coverage run --source='.' -m pytest && coverate report 
+```
 
 #### contributing
 Spot a bug? feature request? want to improve documentation? Kindly open an issue or make a pull request, your feedback 
