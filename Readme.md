@@ -14,7 +14,7 @@ easier to use alternative.
     repo = {"name":"Pyval", "version":"0.0.1", "stars":"2000"} 
     repo_schema = Schema({
         "name":validators.is_str(min_len=3, max_len=8, required=True),
-        "version":validators.is_str(required=True, pattern=r"\d+\.\d+\.\d+"),
+        "version":validators.is_str(required=True, pattern=r"\A\d+\.\d+\.\d+\Z"),
         "stars":validators.is_int(required=False, min=0, default=0)
     })
     
