@@ -3,7 +3,7 @@ from typing import Callable, Tuple
 from pyval.validators import ValidationException
 
 
-def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> Tuple[list, dict]:
+def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> Tuple[dict, dict]:
     """
     Given an input named `data` validate it against `schema` returning errors encountered if any and the input data.
     It's important to note that, validation continues even if an error is encountered.
@@ -32,16 +32,15 @@ def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> T
                  returning it.
     :return: A tuple of the form (errors:str[], validated_data)
     """
-    errors = []
+    errors = {}
     for key in schema:
         try:
             schema[key](data.get(key))
         except ValidationException as e:
-            errors.append(e.message)
+            errors[key] = e.errors
     if hook and not errors:
         try:
             data = hook(data)
         except ValidationException as e:
-            errors.append(e.message)
+            errors["___hook"] = e.errors
     return errors, data
-

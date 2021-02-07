@@ -77,7 +77,7 @@ A factory function that returns a validator for validating texts.
  
 It takes in the following arguments:
 1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
-2. `default`: The default value. Only allowed for non-required fields. 
+2. `default`: The default value. 
 3. `min_len`: The minimum length allowed, defaults to 0 
 4. `max_len`: The maximum length allowed, defaults to `None`
 5. `pattern`: An optional regular expression to which the input must match. Pattern matching is accomplished with 
@@ -89,7 +89,7 @@ A factory function that returns a validator for validating integers.
 
 It takes in the following arguments:
 1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
-2. `default`: The default value. Only allowed for non-required fields. 
+2. `default`: The default value.
 3. `min`: The minimum value allowed, defaults to 0 
 4. `max`: The maximum value allowed, defaults to `None`
 
@@ -99,7 +99,7 @@ A factory function that returns a validator for validating floating point number
 
 It takes in the following arguments:
 1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
-2. `default`: The default value. Only allowed for non-required fields. 
+2. `default`: The default value.
 3. `min`: The minimum value allowed, defaults to 0 
 4. `max`: The maximum value allowed, defaults to `None`
 5. `round_to`: The number of decimal places to which the input must be rounded to. 
@@ -110,7 +110,7 @@ The date validator can work directly with `datetime.datetime` objects or date st
 
 It takes in the following arguments:
 1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
-2. `default`: The default value. Only allowed for non-required fields. 
+2. `default`: The default value. 
 3. `min`: The minimum date allowed, defaults to `None` 
 4. `max`: The maximum date allowed, defaults to `None`
 5. `format`: The format in which date is formatted. This is only used when the input is a string literal. It's 
@@ -124,7 +124,7 @@ the field would be considered invalid. This can be overridden by setting `all` t
 
 It takes in the following arguments:
 1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
-2. `default`: The default value. Only allowed for non-required fields. 
+2. `default`: The default value.
 3. `min_len`: The minimum number of entries allowed, defaults to 0
 4. `max_len`: The maximum number of entries, defaults to `None`
 5. `validator`: A validator for validating each entry in the list. 
@@ -137,12 +137,12 @@ A validator factory that returns a function for validating python dictionaries.
 
 It takes in the following arguments:
 1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
-2. `default`: The default value. Only allowed for non-required fields. 
+2. `default`: The default value.
 5. `schema`: A schema for validating this dictionary, same as the schema described above. 
 
    
 #### custom validators
-In some situations where the built-in validators doesn't work for you, pyval allows you to define your own validator. 
+In some situations where the built-in validators don't work for you, pyval allows you to define your own validator. 
 Validators are essentially functions that take in a single input and return the newly validated input on success or 
 raise a `pyval.validators.ValidationException` for invalid input. A simple example maybe checking if a field is a valid
 ip-address. 
@@ -154,12 +154,12 @@ from pyval import validate
 def is_ipv4_address(input):
     if not input:
         raise ValidationException("this field is required")
-    input = input.strip()
-    if not re.match(r"\d{1,3}\.\d{1,3}\.\d{1,3}.\d{1,3}", input):
+    input = str(input).strip()
+    if not re.match(r"\A\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\Z", input):
         raise ValidationException("This field must be an ipv4 address")
-    parts = input.split(".") # this should produce 4 parts else the regex text should have failed
-    assert len(parts) == 4
-    if any(part > 255 for part in parts):
+    parts = input.split(".") 
+    assert len(parts) == 4 # this should produce 4 parts else the regex test should have failed
+    if any(int(part) > 255 for part in parts):
         raise ValidationException("This field must be a valid ipv4 address") 
     return input
 
@@ -168,7 +168,7 @@ my_schema = {
     "message":is_str(min_len=1, max_len=200) 
 }
 
-err, val = validate(schema=my_schema)
+err, val = validate(schema=my_schema, data={"sender_ip":"127.0.0.1", "message":"PING"})
 ## code continues
 ```  
 

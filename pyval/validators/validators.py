@@ -1,16 +1,16 @@
 from datetime import datetime
 import re
-from typing import Callable, Union
+from typing import Callable, Union, Iterable
 
 
 class ValidationException(Exception):
-    def __init__(self, message):
-        self.message = message
-        super(ValidationException, self).__init__(message)
+    def __init__(self, errors: Union[str, list, dict] = None):
+        self.__errors = errors
+        super(ValidationException, self).__init__(errors if type(errors) is str else str(errors))
 
-
-class ArgumentError(ValueError):
-    pass
+    @property
+    def errors(self):
+        return self.__errors
 
 
 # noinspection PyShadowingBuiltins
@@ -27,8 +27,6 @@ def is_int(required: bool = False, default: int = None, min: int = None, max: in
              a validation exception otherwise. It returns the newly validated input on success.
     :raises ArgumentError: when `required` is `True` and default is provided
     """
-    if required and default is not None:
-        raise ArgumentError("'required' cannot be used together with 'default'")
 
     def func(value: any) -> Union[int, None]:
         value = value if value is not None else default
@@ -64,10 +62,7 @@ def is_float(required: bool = False, default: float = None, min: float = None, m
        :param round_to: the number of decimal places to which the return value must be round to.
        :return: A callable that when invoked with an input will check that it meets the criteria defined above or raise
                 an a validation exception otherwise. It returns the newly validated input on success.
-       :raises ArgumentError: when `required` is `True` and default is provided
     """
-    if required and default is not None:
-        raise ArgumentError("'required' cannot be used together with 'default'")
 
     def func(value: any) -> Union[float, None]:
         value = value if value is not None else default
@@ -94,19 +89,15 @@ def is_str(required: bool = False, default: str = None, min_len: int = None, max
        Returns a function that when invoked with a given input asserts that the input is a valid string
        and that it meets the specified criteria. All text are automatically striped off of both trailing and leading
        whitespaces.
-       :param required: False by default. When set to True, default value cannot be provided.
-       :param default: default value to be used when value is `None` (or missing). Cannot be set together with
-                       `required`
+       :param required: False by default.
+       :param default: default value to be used when value is `None` (or missing).
        :param min_len: the minimum length allowed. Setting this to 1 effectively rejects empty strings
        :param max_len: the maximum length allowed. Strings longer than this will be rejected
        :param pattern: a valid python regex pattern. Define your patterns carefully with regular expression
                         attacks in mind.
        :return: A callable that when invoked with an input will check that it meets the criteria defined above or raise
                 an a validation exception otherwise. It returns the newly validated input on success.
-       :raises ArgumentError: when `required` is `True` and default is also provided
     """
-    if required and default is not None:
-        raise ArgumentError("'required' cannot be used together with 'default'")
     if pattern:
         # compile pattern once and reuse for all validations
         compiled_pattern = re.compile(pattern)
@@ -138,9 +129,8 @@ def is_date(required: bool = False, default: datetime = None, format: str = "%Y-
        and that it meets the specified criteria. The function supports both datetime objects and string literals and
        automatically strips off all trailing/leading whitespaces for string literals.
 
-       :param required: False by default. When set to True, default value cannot be provided.
-       :param default: default value to be used when value is `None` (or missing). Cannot be set together with
-                       `required`
+       :param required: False by default.
+       :param default: default value to be used when value is `None` (or missing).
        :param format: The date format, defaults to %Y-%m%-%d. Only used when input date is a string literal.
                       Bear in mind that, python does not support conditional date formatting so all fields specified in
                       the format must be present in the input string.
@@ -150,10 +140,7 @@ def is_date(required: bool = False, default: datetime = None, format: str = "%Y-
        :return: A callable that when invoked with an input will check that it meets the criteria defined above or raise
                 a validation exception otherwise. It returns the newly validated input on success or the default value
                 provided
-       :raises ArgumentError: when `required` is `True` and default is also provided
     """
-    if required and default:
-        raise ArgumentError("Both required and default cannot be provided at the same time")
 
     def func(input_date: Union[datetime, str]) -> Union[datetime, None]:
         if required and input_date is None:
@@ -177,7 +164,7 @@ def is_date(required: bool = False, default: datetime = None, format: str = "%Y-
     return func
 
 
-def is_dict(schema: dict, required: bool = True, default: dict = {}) -> Callable[[any], dict]:
+def is_dict(schema: dict, required: bool = True, default: dict = None) -> Callable[[any], dict]:
     """
     A validator factory that returns a function for validating python dictionaries.
 
@@ -189,8 +176,22 @@ def is_dict(schema: dict, required: bool = True, default: dict = {}) -> Callable
     :raises ArgumentError: When both required and default is set
     """
 
-    def func(input_val: any) -> dict:
-        raise NotImplementedError()
+    def func(_input: any) -> dict:
+        errors = {}
+        _input = _input or default
+        if required and _input is None:
+            raise ValidationException("required but was missing")
+        if type(_input) != dict:
+            raise ValidationException(f"expected a dictionary but got {type(_input)}")
+        keys = schema.keys()
+        for key in keys:
+            try:
+                _input[key] = schema[key](_input.get(key))
+            except ValidationException as e:
+                errors[key] = e.errors
+        if errors:
+            raise ValidationException(errors)
+        return _input
 
     return func
 
@@ -214,9 +215,26 @@ def is_list(validator: Callable[[any], any], required=True, default=(), min_len=
     :raises ArgumentError: When both required and default is set
     """
 
-    def func(input_val: any) -> list:
-        raise NotImplementedError()
+    def func(_input: any) -> list:
+        _input = _input or default
+        if required and not _input:
+            raise ValidationException("required but was missing")
+
+        if type(_input) is not list:
+            raise ValidationException(f"expected a list but got {type(_input)}")
+
+        errors = []
+        validated_input = []
+        for index, entry in enumerate(_input, 0):
+            try:
+                validated_input.append(validator(entry))
+            except ValidationException as e:
+                errors.append(e.errors)
+        if (all and errors) or (not all and len(errors) == len(_input)):
+            raise ValidationException(errors)
+        return validated_input
 
     return func
 
-__all__ = ("ArgumentError", "ValidationException", "is_int", "is_float", "is_date", "is_str", "is_dict", "is_list")
+
+__all__ = ("ValidationException", "is_int", "is_float", "is_date", "is_str", "is_dict", "is_list")

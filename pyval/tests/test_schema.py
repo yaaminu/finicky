@@ -18,7 +18,7 @@ class TestSchema:
         error_mock.side_effect = ValidationException("An error occurred")
         schema = {"name": error_mock, "version": error_mock, "stars": error_mock}
         errors, _ = validate(schema=schema, data=repo)
-        assert errors == ["An error occurred", "An error occurred", "An error occurred"]
+        assert errors == {"name": "An error occurred", "version": "An error occurred", "stars": "An error occurred"}
 
     def test_validate_must_not_require_hook(self):
         schema = {"name": Mock()}
@@ -48,7 +48,7 @@ class TestSchema:
         hook_mock = Mock()
         hook_mock.side_effect = ValidationException("Hook error")
         errors, _ = validate(schema=schema, data=repo, hook=hook_mock)
-        assert "Hook error" in errors
+        assert "Hook error" in errors["___hook"]
 
     def test_validate_must_return_what_the_hook_returns(self):
         repo = {"name": "pyval", "version": "1.0.0", "stars": "2000"}
