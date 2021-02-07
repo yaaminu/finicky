@@ -27,9 +27,10 @@ and code ceremony even for simple use cases. The goal of this library is to prov
 ```
 
 ### Schemas
-A schema is a case-sensitive mapping of field names to their corresponding validators. Pyval comes with set
+A schema is a case-sensitive mapping of field names to their corresponding validators. Pyval comes with a set
 of predefined validators that cover most use cases but you may define custom ones if the inbuilt validators don't work 
 for your use case. These validators are described in the validators section.
+
 **Example**
 ```python
 repo_schama = {
@@ -41,7 +42,9 @@ repo_schama = {
 
 #### Validators
 A validator is a function that takes a single argument and raises a `pyval.validators.ValidationException` when its 
-argument is invalid or returns the input successful validation. The input may be modified before returning it. 
+argument is invalid or returns the input upon successful validation. The input may be modified before returning it. 
+
+**Example**
 ```python
 import re
 def version_validator(input:any)-> str:
@@ -53,15 +56,15 @@ def version_validator(input:any)-> str:
 
 #### Hooks
 In some situations, the validity of an input may depend on complex conditions and relationship between multiple fields.
-Pyval allows you to define a function that shall be invoked with the input data after all field level validation have
-succeeded. This hook can then run the necessary validation returning the input on success or raising a
-ValidationException on success. Example, a price data may contain all valid fields but you may want to ensure that
+Pyval allows you to define a function that shall be invoked with the input data after all field level validations have
+succeeded. This hook can then run the necessary validation returning the input on success or raise a
+ValidationException on success. Example, a price data may contain valid fields but you may want to ensure that
 selling price is always greater than cost rice. Hooks are useful for these kind of checks. 
 
 **Example Usage**
 ```python
 def hook(price): 
-    # hook will only be called if all fields have passed validation 
+    # hook will only be called if all fields have passed validation  
     if price["selling_price"] < price["cost_price"]:
         raise  ValidationException("selling price cannot be less than cost price")
     return price
@@ -100,8 +103,8 @@ It takes in the following arguments:
 3. `min_len`: The minimum length allowed, defaults to 0 
 4. `max_len`: The maximum length allowed, defaults to `None`
 5. `pattern`: An optional regular expression to which the input must match. Pattern matching is accomplished with 
-              the standard python `re` package.  Be careful when using this on untrusted input as you may expose
-              yourself to regular expression denial attacks. 
+              the standard python `re` package.  **Be careful when using this on untrusted input as you may expose
+              yourself to regular expression DDos attacks**. 
 
 #### is_int
 A factory function that returns a validator for validating integers.
@@ -161,6 +164,11 @@ It takes in the following arguments:
 
    
 #### custom validators
+
+##### A Note On Security 
+_Pyval is designed with adversarial users in mind and all built-in validators make no assumption about the input.
+ When authoring custom validators, always make sure they're designed properly to handle malicious input_
+
 In some situations where the built-in validators don't work for you, pyval allows you to define your own validator. 
 Validators are essentially functions that take in a single input and return the newly validated input on success or 
 raise a `pyval.validators.ValidationException` for invalid input. A simple example maybe checking if a field is a valid
