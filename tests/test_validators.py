@@ -1,6 +1,5 @@
 import datetime
 from unittest.mock import Mock, call
-
 import pytest
 
 from pyval.validators import ValidationException, is_int, is_float, is_str, is_date, is_dict, is_list
