@@ -1,29 +1,26 @@
-# Pyval - Easy data validation 
+# Pyval - Easy Data Validation 
 
 ## Motivation 
-There are many libraries available for validating data in python but they all surprisingly require too much boilerplate 
-and code ceremony even for simple use cases. The goal of this library is to provide an easier to use alternative. 
+There are many libraries available for validating data in python but surprisingly, they all require too much boilerplate 
+and code ceremony even for simple use cases. The goal of this library is to provide an easier to use alternative.
 
 
 ## Getting Started
 
 ```python
-    from pyval import Schema, validators
+from pyval import validate, validators
 
-    repo = {"name":"Pyval", "version":"0.0.1", "stars":"2000"} 
-    repo_schema = Schema({
-        "name":validators.is_str(min_len=3, max_len=8, required=True),
-        "version":validators.is_str(required=True, pattern=r"\A\d+\.\d+\.\d+\Z"),
-        "stars":validators.is_int(required=False, min=0, default=0)
-    })
-    
-    errors, validated_repo = repo_schema.validate(data=repo)
-    if errors: #validation failed
-        for key in errors.keys():
-            print(f"{key}: {errors[key]}")
-    else:
-        use_validated_data(validated_repo)
-        # .. more code
+repo = {"name":"Pyval", "version":"0.0.1", "stars":"2000"} 
+repo_schema = {
+    "name":validators.is_str(min_len=3, max_len=8, required=True),
+    "version":validators.is_str(required=True, pattern=r"\A\d+\.\d+\.\d+\Z"),
+    "stars":validators.is_int(required=False, min=0, default=0)
+}
+errors, validated_repo = validate(schema=repo_schema, data=repo)
+if errors: #validation failed
+    # handle errors
+else:
+    # use validated data
 ```
 
 ### Schemas
@@ -186,12 +183,12 @@ def is_ipv4_address(input):
         raise ValidationException("This field must be an ipv4 address")
     parts = input.split(".") 
     assert len(parts) == 4 # this should produce 4 parts else the regex test should have failed
-    if any(int(part) > 255 for part in parts):
+    if any(int(part, base=10) > 255 for part in parts):
         raise ValidationException("This field must be a valid ipv4 address") 
     return input
 
 my_schema = {
-    "sender_ip":is_ipv4_address,
+    "sender_ip":is_ipv4_address, 
     "message":is_str(min_len=1, max_len=200) 
 }
 
@@ -201,11 +198,41 @@ err, val = validate(schema=my_schema, data={"sender_ip":"127.0.0.1", "message":"
 
 
 ### Handling Errors 
+`pyval.validate` returns a tuple where the first element is an error and the second, the newly validated data. On successful 
+validation, error is `None`. Errors are python dicts that follow exactly the structure of the schema so checking which field 
+failed validation is trivial (as shown below). There's an extra field on the returned error  named `___hook` that holds 
+errors raised by the optional hook function. 
 
+**Example**
+```python
+from pyval.validators import  is_float, ValidationException
+from pyval import validate
+
+def hook(price):
+    if price.get("selling_price") < price.get("cost_price"):
+        raise ValidationException("selling_price cannot be less than cost_price")
+    return price
+
+price_schema = {
+    "selling_price":is_float(required=True,round_to=2, min=0.01),
+    "cost_price":is_float(required=True, round_to=2, min=0.01) 
+}
+# scenario 1
+errors, _ = validate(schema=price_schema,data=dict(selling_price=0, cost_price=8), hook=hook)
+print(errors) # {"selling_price":"'0' is less than minimum value required (0.1)"}
+
+# scenario 2
+errors, _ = validate(schema=price_schema,data=dict(selling_price=2, cost_price=8), hook=hook)
+print(errors) # {"__hook":"selling_price cannot be less than cost_price"}
+
+# scenario 3
+_, validated_price = validate(schema=price_schema,data=dict(selling_price=12.159, cost_price=8.489), hook=hook)
+print(validated_price) # {"selling_price":12.16, "cost_price":8.49}
+```
 
 ### Testing 
 ```shell script
-coverage run --source='.' -m pytest && coverate report 
+coverage run --source='.' -m pytest && coverage report 
 ```
 
 #### contributing
