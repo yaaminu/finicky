@@ -1,6 +1,6 @@
 from typing import Callable, Tuple
 
-from pyval.validators import ValidationException
+from validators import ValidationException
 
 
 def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> Tuple[dict, dict]:
@@ -44,3 +44,6 @@ def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> T
         except ValidationException as e:
             errors["___hook"] = e.errors
     return errors, data
+
+
+__all__ = ("validate",)
