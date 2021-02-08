@@ -1,6 +1,6 @@
 from typing import Callable, Tuple
 
-from validators import ValidationException
+from .validators import ValidationException
 
 
 def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> Tuple[dict, dict]:
@@ -33,17 +33,18 @@ def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> T
     :return: A tuple of the form (errors:str[], validated_data)
     """
     errors = {}
+    validated_data = {}
     for key in schema:
         try:
-            schema[key](data.get(key))
+            validated_data[key] = schema[key](data.get(key))
         except ValidationException as e:
             errors[key] = e.errors
     if hook and not errors:
         try:
-            data = hook(data)
+            validated_data = hook(validated_data)
         except ValidationException as e:
             errors["___hook"] = e.errors
-    return errors, data
+    return errors, validated_data
 
 
 __all__ = ("validate",)

@@ -8,8 +8,8 @@ and code ceremony even for simple use cases. The goal of this library is to prov
 ## Getting Started
 
 ```python
-from pyval import validate
-import validators
+from pyval.schema import validate
+from pyval import validators
 
 repo = {"name":"Pyval", "version":"0.0.1", "stars":"2000"} 
 repo_schema = {
@@ -173,8 +173,8 @@ raise a `pyval.validators.ValidationException` for invalid input. A simple examp
 ip-address. 
 ```python
 import re
-from validators import ValidationException, is_str
-from pyval import validate
+from pyval.validators import ValidationException, is_str
+from pyval.schema import validate
 
 def is_ipv4_address(input):
     if not input:
@@ -206,8 +206,8 @@ errors raised by the optional hook function.
 
 **Example**
 ```python
-from validators import  is_float, ValidationException
-from pyval import validate
+from pyval.validators import  is_float, ValidationException
+from pyval.schema import validate
 
 def hook(price):
     if price.get("selling_price") < price.get("cost_price"):
