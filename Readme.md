@@ -70,8 +70,8 @@ def hook(price):
 
 #### Putting It All Together
 ```python
-from schema import validate
-from validators import  is_int,is_float, ValidationException
+from pyval.schema import validate
+from pyval.validators import  is_int,is_float, ValidationException
 
 data = {"product_id":2, "cost_price":1.2, "selling_price":1.8}
 schema = {

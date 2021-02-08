@@ -1,6 +1,6 @@
 from unittest.mock import Mock
-from validators import ValidationException, is_str, is_int
-from schema import validate
+from pyval.validators import ValidationException, is_str, is_int
+from pyval.schema import validate
 
 
 class TestSchema:
