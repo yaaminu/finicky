@@ -1,5 +1,5 @@
 from typing import Callable, Tuple
-from .validators import ValidationException
+from pyval.validators import ValidationException
 
 
 def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> Tuple[dict, dict]:
