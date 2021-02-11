@@ -231,7 +231,10 @@ print(validated_price) # {"selling_price":12.16, "cost_price":8.49}
 coverage run --source='.' -m pytest && coverage report 
 ```
 
-#### contributing
+### License
+MIT
+
+### contributing
 Spot a bug? feature request? want to improve documentation? Kindly open an issue or make a pull request, your feedback 
 is welcome.
 
