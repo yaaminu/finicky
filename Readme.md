@@ -8,14 +8,13 @@ and code ceremony even for simple use cases. The goal of this library is to prov
 ## Getting Started
 
 ```python
-from pyval.schema import validate
-from pyval import validators
+from pyval import validate, is_str, is_int
 
 repo = {"name":"Pyval", "version":"0.0.1", "stars":"2000"} 
 repo_schema = {
-    "name":validators.is_str(min_len=3, max_len=8, required=True),
-    "version":validators.is_str(required=True, pattern=r"\A\d+\.\d+\.\d+\Z"),
-    "stars":validators.is_int(required=False, min=0, default=0)
+    "name":is_str(min_len=3, max_len=8, required=True),
+    "version":is_str(required=True, pattern=r"\A\d+\.\d+\.\d+\Z"),
+    "stars":is_int(required=False, min=0, default=0)
 }
 errors, validated_repo = validate(schema=repo_schema, data=repo)
 if errors: #validation failed
@@ -39,7 +38,7 @@ repo_schama = {
 ```
 
 #### Validators
-A validator is a function that takes a single argument and raises a `pyval.validators.ValidationException` when its 
+A validator is a function that takes a single input and raises a `pyval.ValidationException` when its 
 argument is invalid or returns the input upon successful validation. The input may be modified before returning it. 
 
 **Example**
@@ -70,8 +69,7 @@ def hook(price):
 
 #### Putting It All Together
 ```python
-from pyval.schema import validate
-from pyval.validators import  is_int,is_float, ValidationException
+from pyval import  validate, is_int,is_float
 
 data = {"product_id":2, "cost_price":1.2, "selling_price":1.8}
 schema = {
@@ -161,20 +159,19 @@ It takes in the following arguments:
 5. `schema`: A schema for validating this dictionary, same as the schema described above. 
 
    
-#### custom validators
+### custom validators
 
-##### A Note On Security 
+#### A Note On Security 
 _Pyval is designed with adversarial users in mind and all built-in validators make no assumption about the input.
  When authoring custom validators, always make sure they're designed properly to handle malicious input_
 
 In some situations where the built-in validators don't work for you, pyval allows you to define your own validator. 
 Validators are essentially functions that take in a single input and return the newly validated input on success or 
-raise a `pyval.validators.ValidationException` for invalid input. A simple example maybe checking if a field is a valid
+raise a `pyval.ValidationException` for invalid input. A simple example maybe checking if a field is a valid
 ip-address. 
 ```python
 import re
-from pyval.validators import ValidationException, is_str
-from pyval.schema import validate
+from pyval import validate,is_str, ValidationException 
 
 def is_ipv4_address(input):
     if not input:
@@ -197,7 +194,6 @@ err, val = validate(schema=my_schema, data={"sender_ip":"127.0.0.1", "message":"
 ## code continues
 ```  
 
-
 ### Handling Errors 
 `pyval.validate` returns a tuple where the first element is an error and the second, the newly validated data. On successful 
 validation, error is `None`. Errors are python dicts that follow exactly the structure of the schema so checking which field 
@@ -206,8 +202,7 @@ errors raised by the optional hook function.
 
 **Example**
 ```python
-from pyval.validators import  is_float, ValidationException
-from pyval.schema import validate
+from pyval import  validate, is_float, ValidationException
 
 def hook(price):
     if price.get("selling_price") < price.get("cost_price"):
