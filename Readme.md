@@ -99,8 +99,8 @@ It takes in the following arguments:
 3. `min_len`: The minimum length allowed, defaults to 0 
 4. `max_len`: The maximum length allowed, defaults to `None`
 5. `pattern`: An optional regular expression to which the input must match. Pattern matching is accomplished with 
-              the standard python `re` package.  **Be careful when using this on untrusted input as you may expose
-              yourself to regular expression DDos attacks**. 
+              the standard python `re` package.  _**Be careful when using this on untrusted input as you may expose**
+              _**yourself to regular expression DDos attacks**_. 
 
 #### is_int
 A factory function that returns a validator for validating integers.
@@ -159,7 +159,8 @@ It takes in the following arguments:
 5. `schema`: A schema for validating this dictionary, same as the schema described above. 
 
    
-### custom validators
+
+### Custom Validators
 
 #### A Note On Security 
 _Pyval is designed with adversarial users in mind and all built-in validators make no assumption about the input.
@@ -234,7 +235,7 @@ coverage run --source='.' -m pytest && coverage report
 ### License
 MIT
 
-### contributing
+### Contributing
 Spot a bug? feature request? want to improve documentation? Kindly open an issue or make a pull request, your feedback 
 is welcome.
 
