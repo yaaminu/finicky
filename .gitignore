@@ -95,7 +95,5 @@ db.sqlite3
 
 .v
 
-billing/settings/local.py
 .vscode/
 *.pyc
-docker-compose-correct.yml

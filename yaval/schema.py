@@ -1,5 +1,5 @@
 from typing import Callable, Tuple
-from pyval.validators import ValidationException
+from yaval.validators import ValidationException
 
 
 def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> Tuple[dict, dict]:
@@ -8,11 +8,11 @@ def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> T
     It's important to note that, validation continues even if an error is encountered.
     :param schema: The schema against which the input should be validated. A schema is essentially a mapping of field
     names and their corresponding validators. The keys must match exactly to fields in the input data.
-    Pyval comes with a set of standard validators defined in `pyval.validators` but you can write your own
+    Pyval comes with a set of standard validators defined in `yaval.validators` but you can write your own
     if your need a more customized one.
 
     A validator is a function which takes in a single argument and returns the validated
-    data on success. On failure, it must raise a `pyval.validators.ValidationException`. To illustrate in code:
+    data on success. On failure, it must raise a `yaval.validators.ValidationException`. To illustrate in code:
     ```
         def my_custom_batch_no_validator(input):
             if not input:
@@ -27,7 +27,7 @@ def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> T
     :param hook: An optional custom hook function that shall be invoked  when all fields have passed validation. It is
                  especially useful in situations where the validity of the input also conditionally relies on multiple
                  fields. it takes as an input, the newly validated data and must return the input on success
-                 or raise a `pyval.validators.ValidationException` on failure. This hook may modify the input before
+                 or raise a `yaval.validators.ValidationException` on failure. This hook may modify the input before
                  returning it.
     :return: A tuple of the form (errors:str[], validated_data)
     """

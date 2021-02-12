@@ -6,12 +6,12 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 setup(
-    name="Pyval",
-    version="0.0.2",
+    name="Yaval",
+    version="0.0.3",
     description="Easy Data Validation",
     long_description=README,
     long_description_content_type="text/markdown",
-    url="https://github.com/yaaminu/pyval",
+    url="https://github.com/yaaminu/yaval",
     author="Aminu Abdul Manaf",
     author_email="afolanyaaminu@gmai.com",
     license="MIT",
@@ -20,7 +20,8 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.7",
     ],
-    packages=["pyval"],
+    python_requires=">=3.6",  # requires f-strings
+    packages=["yaval"],
     include_package_data=True,
     entry_points={
         "console_scripts": [
