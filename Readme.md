@@ -1,4 +1,4 @@
-# Pyval - Easy Data Validation 
+# Yaval -  Yet Another (data) Validator
 
 ## Motivation 
 There are many libraries available for validating data in python but surprisingly, they all require too much boilerplate 
@@ -8,23 +8,23 @@ and code ceremony even for simple use cases. The goal of this library is to prov
 ## Getting Started
 
 ```python
-from pyval import validate, is_str, is_int
+from yaval import validate, is_str, is_int
 
-repo = {"name":"Pyval", "version":"0.0.1", "stars":"2000"} 
+repo = {"name":"Yaval", "version":"0.0.1", "stars":"2000"} 
 repo_schema = {
     "name":is_str(min_len=3, max_len=8, required=True),
     "version":is_str(required=True, pattern=r"\A\d+\.\d+\.\d+\Z"),
     "stars":is_int(required=False, min=0, default=0)
 }
 errors, validated_repo = validate(schema=repo_schema, data=repo)
-if errors: #validation failed
+if errors: 
     # handle errors
 else:
     # use validated data
 ```
 
 ### Schemas
-A schema is a case-sensitive mapping of field names to their corresponding validators. Pyval comes with a set
+A schema is a case-sensitive mapping of field names to their corresponding validators. Yaval comes with a set
 of predefined validators that cover most use cases but you may define custom ones if the inbuilt validators don't work 
 for your use case. These validators are described in the validators section.
 
@@ -38,12 +38,14 @@ repo_schama = {
 ```
 
 #### Validators
-A validator is a function that takes a single input and raises a `pyval.ValidationException` when its 
+A validator is a function that takes a single input and raises a `yaval.ValidationException` when its 
 argument is invalid or returns the input upon successful validation. The input may be modified before returning it. 
 
 **Example**
 ```python
 import re
+from yaval import ValidationException
+
 def version_validator(input:any)-> str:
     input = str(input).strip()
     if re.match(r"\A\d+\.\d+\.\d+\Z", input):
@@ -53,13 +55,14 @@ def version_validator(input:any)-> str:
 
 #### Hooks
 In some situations, the validity of an input may depend on complex conditions and relationship between multiple fields.
-Pyval allows you to define a function that shall be invoked with the input data after all field level validations have
+yaval allows you to define a function that shall be invoked with the input data after all field level validations have
 succeeded. This hook can then run the necessary validation returning the input on success or raise a
 ValidationException on success. Example, a price data may contain valid fields but you may want to ensure that
 selling price is always greater than cost rice. Hooks are useful for these kind of checks. 
 
 **Example Usage**
 ```python
+from yaval import ValidationException
 def hook(price): 
     # hook will only be called if all fields have passed validation  
     if price["selling_price"] < price["cost_price"]:
@@ -69,7 +72,7 @@ def hook(price):
 
 #### Putting It All Together
 ```python
-from pyval import  validate, is_int,is_float
+from yaval import  validate, is_int,is_float
 
 data = {"product_id":2, "cost_price":1.2, "selling_price":1.8}
 schema = {
@@ -86,7 +89,7 @@ else:
 
 
 ### Built-in Validators
-Pyval comes with predefined validators that you can use right away. They are essentially factory functions that returns
+yaval comes with predefined validators that you can use right away. They are essentially factory functions that returns
 another function that take in one argument (the data to be validated) and return the validated data on success or raise
 `ValidationException` on failure. 
 
@@ -163,16 +166,16 @@ It takes in the following arguments:
 ### Custom Validators
 
 #### A Note On Security 
-_Pyval is designed with adversarial users in mind and all built-in validators make no assumption about the input.
+_yaval is designed with adversarial users in mind and all built-in validators make no assumption about the input.
  When authoring custom validators, always make sure they're designed properly to handle malicious input_
 
-In some situations where the built-in validators don't work for you, pyval allows you to define your own validator. 
+In some situations where the built-in validators don't work for you, yaval allows you to define your own validator. 
 Validators are essentially functions that take in a single input and return the newly validated input on success or 
-raise a `pyval.ValidationException` for invalid input. A simple example maybe checking if a field is a valid
+raise a `yaval.ValidationException` for invalid input. A simple example maybe checking if a field is a valid
 ip-address. 
 ```python
 import re
-from pyval import validate,is_str, ValidationException 
+from yaval import validate,is_str, ValidationException 
 
 def is_ipv4_address(input):
     if not input:
@@ -196,14 +199,14 @@ err, val = validate(schema=my_schema, data={"sender_ip":"127.0.0.1", "message":"
 ```  
 
 ### Handling Errors 
-`pyval.validate` returns a tuple where the first element is an error and the second, the newly validated data. On successful 
+`yaval.validate` returns a tuple where the first element is an error and the second, the newly validated data. On successful 
 validation, error is `None`. Errors are python dicts that follow exactly the structure of the schema so checking which field 
 failed validation is trivial (as shown below). There's an extra field on the returned error  named `___hook` that holds 
 errors raised by the optional hook function. 
 
 **Example**
 ```python
-from pyval import  validate, is_float, ValidationException
+from yaval import  validate, is_float, ValidationException
 
 def hook(price):
     if price.get("selling_price") < price.get("cost_price"):
