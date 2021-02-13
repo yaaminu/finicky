@@ -7,6 +7,10 @@ and code ceremony even for simple use cases. The goal of this library is to prov
 
 ## Getting Started
 
+```shell script
+pip install finicky
+```
+
 ```python
 from finicky import validate, is_str, is_int
 
@@ -57,7 +61,7 @@ def version_validator(input:any)-> str:
 In some situations, the validity of an input may depend on complex conditions and relationship between multiple fields.
 finicky allows you to define a function that shall be invoked with the input data after all field level validations have
 succeeded. This hook can then run the necessary validation returning the input on success or raise a
-ValidationException on success. Example, a price data may contain valid fields but you may want to ensure that
+ValidationException on failure. Example, a price data may contain valid fields but you may want to ensure that
 selling price is always greater than cost rice. Hooks are useful for these kind of checks. 
 
 **Example Usage**
@@ -109,7 +113,7 @@ It takes in the following arguments:
 A factory function that returns a validator for validating integers.
 
 It takes in the following arguments:
-1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
+1. `required`: `True` when the field is required, `False` otherwise. `True` by default
 2. `default`: The default value.
 3. `min`: The minimum value allowed, defaults to 0 
 4. `max`: The maximum value allowed, defaults to `None`
@@ -119,7 +123,7 @@ It takes in the following arguments:
 A factory function that returns a validator for validating floating point numbers. 
 
 It takes in the following arguments:
-1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
+1. `required`: `True` when the field is required, `False` otherwise. `True` by default
 2. `default`: The default value.
 3. `min`: The minimum value allowed, defaults to 0 
 4. `max`: The maximum value allowed, defaults to `None`
@@ -130,7 +134,7 @@ A factory function that returns a validator for validating dates.
 The date validator can work directly with `datetime.datetime` objects or date strings. 
 
 It takes in the following arguments:
-1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
+1. `required`: `True` when the field is required, `False` otherwise. `True` by default
 2. `default`: The default value. 
 3. `min`: The minimum date allowed, defaults to `None` 
 4. `max`: The maximum date allowed, defaults to `None`
@@ -144,7 +148,7 @@ A validator factory that returns a function for validating lists. By default, al
 the field would be considered invalid. This can be overridden by setting `all` to `false` (see below). 
 
 It takes in the following arguments:
-1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
+1. `required`: `True` when the field is required, `False` otherwise. `True` by default
 2. `default`: The default value.
 3. `min_len`: The minimum number of entries allowed, defaults to 0
 4. `max_len`: The maximum number of entries, defaults to `None`
@@ -157,7 +161,7 @@ It takes in the following arguments:
 A validator factory that returns a function for validating python dictionaries.
 
 It takes in the following arguments:
-1. `required`: `bool` - `True` when the field is required, `False` otherwise. `True` by default
+1. `required`: `True` when the field is required, `False` otherwise. `True` by default
 2. `default`: The default value.
 5. `schema`: A schema for validating this dictionary, same as the schema described above. 
 
