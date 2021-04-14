@@ -9,7 +9,7 @@ dependencies = [dep for dep in deps if len(dep.strip()) > 0]
 
 setup(
     name="Finicky",
-    version="0.1.6",
+    version="0.1.7",
     description="Easy Data Validation",
     long_description=README,
     long_description_content_type="text/markdown",
