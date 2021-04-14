@@ -1,4 +1,4 @@
-name: Publish Release To PyPI
+name: Publish Release To PyPi
 on: push
 
 jobs:
