@@ -1,15 +1,15 @@
-import pathlib
+import pathlib2
 from setuptools import setup
 
-HERE = pathlib.Path(__file__).parent
+HERE = pathlib2.Path(__file__).parent
 
 README = (HERE / "Readme.md").read_text()
-deps = pathlib.Path('requirements.txt').read_text().split("\n")
+deps = pathlib2.Path('requirements.txt').read_bytes().split("\n")
 dependencies = [dep for dep in deps if len(dep.strip()) > 0]
 
 setup(
     name="Finicky",
-    version="0.1.3",
+    version="0.1.4",
     description="Easy Data Validation",
     long_description=README,
     long_description_content_type="text/markdown",
