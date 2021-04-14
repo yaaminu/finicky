@@ -1,8 +1,7 @@
-from typing import Callable, Tuple
 from finicky.validators import ValidationException
 
 
-def validate(schema: dict, data: dict, hook: Callable[[dict], dict] = None) -> Tuple[dict, dict]:
+def validate(schema, data, hook=None):
     """
     Given an input named `data` validate it against `schema` returning errors encountered if any and the input data.
     It's important to note that, validation continues even if an error is encountered.

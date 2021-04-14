@@ -1,5 +1,5 @@
 import datetime
-from unittest.mock import Mock, call
+from mock import Mock, call
 import pytest
 
 from finicky import ValidationException, is_int, is_float, is_str, is_date, is_dict, is_list
@@ -17,19 +17,19 @@ class TestIntValidator:
     def test_must_raise_validation_exception_when_input_is_not_a_valid_int(self, input):
         with pytest.raises(ValidationException) as exc_info:
             is_int()(input)
-        assert exc_info.value.args[0] == f"'{input}' is not a valid integer"
+        assert exc_info.value.args[0] == "'{}' is not a valid integer".format(input)
 
     @pytest.mark.parametrize("input,min", [(-1, 0), (0, 1), (8, 9), (11, 120)])
     def test_must_raise_validation_exception_when_input_is_less_than_minimum_allowed(self, input, min):
         with pytest.raises(ValidationException) as exc_info:
             is_int(min=min)(input)
-        assert exc_info.value.args[0] == f"'{input}' is less than minimum allowed ({min})"
+        assert exc_info.value.args[0] == "'{}' is less than minimum allowed ({})".format(input, min)
 
     @pytest.mark.parametrize("input,max", [(1, 0), (0, -1), (10, 9), (100, 99)])
     def test_must_raise_validation_exception_when_input_is_greater_than_maximum_allowed(self, input, max):
         with pytest.raises(ValidationException) as exc_info:
             is_int(max=max)(input)
-        assert exc_info.value.args[0] == f"'{input}' is greater than maximum allowed ({max})"
+        assert exc_info.value.args[0] == "'{}' is greater than maximum allowed ({})".format(input, max)
 
     @pytest.mark.parametrize("input, min, max", [(8, 2, 10), (0, -1, 1), ("8", 1, 12)])
     def test_must_return_input_upon_validation(self, input, min, max):
@@ -54,20 +54,20 @@ class TestFloatValidator:
     def test_must_raise_validation_exception_when_input_is_not_a_valid_int(self, input):
         with pytest.raises(ValidationException) as exc_info:
             is_float()(input)
-        assert exc_info.value.args[0] == f"'{input}' is not a valid floating number"
+        assert exc_info.value.args[0] == "'{}' is not a valid floating number".format(input)
 
     @pytest.mark.parametrize("input,min", [(-0.99, 0), (0.1, 0.12), (8.9, 9), (13, 120)])
     def test_must_raise_validation_exception_when_input_is_less_than_minimum_allowed(self, input, min):
         with pytest.raises(ValidationException) as exc_info:
             is_float(min=min)(input)
-        assert exc_info.value.args[0] == f"'{float(input)}' is less than minimum allowed ({min})"
+        assert exc_info.value.args[0] == "'{}' is less than minimum allowed ({})".format(float(input), min)
 
     @pytest.mark.parametrize("input,max", [(0.2, 0), (-0.1, -0.2), (9.9, 9), (99.1, 99)])
     def test_must_raise_validation_exception_when_input_is_greater_than_maximum_allowed(self, input, max):
         print(input, max)
         with pytest.raises(ValidationException) as exc_info:
             is_float(max=max)(input)
-        assert exc_info.value.args[0] == f"'{float(input)}' is greater than maximum allowed ({max})"
+        assert exc_info.value.args[0] == "'{}' is greater than maximum allowed ({})".format(float(input), max)
 
     @pytest.mark.parametrize("input, min, max", [(8.2, 0.1, 8.3), (0.1, -0.1, 0.2), ("0.2", 0.1, 12)])
     def test_must_return_input_upon_validation(self, input, min, max):
@@ -106,19 +106,19 @@ class TestStrValidator:
     def test_must_raise_validation_exception_when_input_is_shorter_than_minimum_required_length(self, input, min_len):
         with pytest.raises(ValidationException) as exc_info:
             is_str(min_len=min_len)(input)
-        assert exc_info.value.args[0] == f"'{input.strip()}' is shorter than minimum required length({min_len})"
+        assert exc_info.value.args[0] == "'{}' is shorter than minimum required length({})".format(input.strip(), min_len)
 
     @pytest.mark.parametrize("input,max_len", [("GHAN ", 3), (" GH ", 1), ("Python GH", 7)])
     def test_must_raise_validation_exception_when_input_is_shorter_than_minimum_required_length(self, input, max_len):
         with pytest.raises(ValidationException) as exc_info:
             is_str(max_len=max_len)(input)
-        assert exc_info.value.args[0] == f"'{input.strip()}' is longer than maximum required length({max_len})"
+        assert exc_info.value.args[0] == "'{}' is longer than maximum required length({})".format(input.strip(), max_len)
 
     @pytest.mark.parametrize("input, pattern", [("GH", r"\bGHA$"), ("GH-1A", r"\bGH-\d?$")])
     def test_must_raise_validation_error_when_input_does_not_match_expected_pattern(self, input, pattern):
         with pytest.raises(ValidationException) as exc_info:
             is_str(pattern=pattern)(input)
-        assert exc_info.value.args[0] == f"'{input}' does not match expected pattern({pattern})"
+        assert exc_info.value.args[0] == "'{}' does not match expected pattern({})".format(input, pattern)
 
     def test_must_return_default_when_input_is_none(self):
         assert is_str(default="Text")(None) == "Text"
@@ -140,7 +140,7 @@ class TestIsDateValidator:
     def test_must_raise_validation_exception_when_input_str_does_not_match_format(self, format, input):
         with pytest.raises(ValidationException) as exc_info:
             is_date(format=format)(input)
-        assert exc_info.value.args[0] == f"'{input}' does not match expected format({format})"
+        assert exc_info.value.args[0] == "'{}' does not match expected format({})".format(input, format)
 
     @pytest.mark.parametrize("input", ["2020-12-20", "2021-01-31 ", " 1999-08-12 "])
     def test_must_use_iso_8601_format_when_format_is_not_supplied(self, input):
@@ -151,13 +151,13 @@ class TestIsDateValidator:
     def test_must_raise_validation_exception_when_date_is_older_than_latest_by_if_defined(self, input, min):
         with pytest.raises(ValidationException) as exc_info:
             is_date(min=datetime.datetime.strptime(min, "%Y-%m-%d"))(input)
-        assert exc_info.value.args[0] == f"'{input}' occurs before minimum date({min})"
+        assert exc_info.value.args[0] == "'{}' occurs before minimum date({})".format(input, min)
 
     @pytest.mark.parametrize("max,input", [("2020-12-19", "2020-12-20"), ("2020-12-31", "2021-01-31",)])
     def test_must_raise_validation_exception_when_date_is_older_than_latest_by_if_defined(self, max, input):
         with pytest.raises(ValidationException) as exc_info:
             is_date(max=datetime.datetime.strptime(max, "%Y-%m-%d"))(input)
-        assert exc_info.value.args[0] == f"'{input}' occurs after maximum date({max})"
+        assert exc_info.value.args[0] == "'{}' occurs after maximum date({})".format(input, max)
 
     def test_must_support_datetime_objects_as_input_dates(self):
         today = datetime.datetime.today()
@@ -180,7 +180,7 @@ class TestDictValidator:
     def test_must_raise_validation_exception_when_input_is_none_but_was_required(self):
         with pytest.raises(ValidationException) as exc:
             is_dict(required=True, schema={})(None)
-        assert exc.value.args[0] == f"required but was missing"
+        assert exc.value.args[0] == "required but was missing"
 
     def test_must_return_default_value_when_input_is_none(self):
         address = {"phone": "+233-282123233"}
@@ -190,7 +190,7 @@ class TestDictValidator:
     def test_must_raise_validation_error_when_input_is_not_dict(self, input):
         with pytest.raises(ValidationException) as exc_info:
             is_dict(schema={"phone": is_str(required=True)})(input)
-        assert exc_info.value.errors == f"expected a dictionary but got {type(input)}"
+        assert exc_info.value.errors == "expected a dictionary but got {}".format(type(input))
 
     @pytest.mark.parametrize(
         ("schema", "input_dict", "expected_errors"),
@@ -237,7 +237,7 @@ class TestListValidator:
     def test_must_raise_validation_exception_for_non_list_input(self, input):
         with pytest.raises(ValidationException) as exc:
             is_list(validator=Mock())(input)
-        assert exc.value.errors == f"expected a list but got {type(input)}"
+        assert exc.value.errors == "expected a list but got {}".format(type(input))
 
     def test_must_validate_all_input_against_validator(self):
         validator = Mock()

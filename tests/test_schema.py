@@ -1,4 +1,4 @@
-from unittest.mock import Mock
+from mock import Mock
 from finicky import ValidationException, is_str, is_int
 from finicky import validate
 
