@@ -1,21 +1,27 @@
 name: Publish Release To PyPi
-on: push
-
+on: [push]
 jobs:
   build-n-publish:
     name: Build and publish release to PyPi
     runs-on: ubuntu-18.04
+    if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@master
       - name: Set up python
-        uses: actions/setup-python@1
+        uses: actions/setup-python@v2
         with:
           python-version: 2.7
+      - name: Install Deps
+        run: |
+          pip install -r requirements.txt
+      - name: Test
+        run: |
+          coverage run -m pytest
       - name: Build
-      - run: >-
-          python setup.py sdist bdist_wheel
+        run: |
+          python setup.py sdist
       - name: Publish To PyPi
-        if: startsWith(github.ref, 'refs/tags')
-        uses: pypa/gh-action-pypy-publish@master
-        with:
-          password: ${{secretes.PYPI_API_TOKEN}}
+        run: |
+          twine check dist/* &&
+          twine upload -u ${{secrets.PYPI_USERNAME}} -p ${{secrets.PYPI_PASSWORD}} dist/* &&
+          echo "Successfully upload new release to pypi"
