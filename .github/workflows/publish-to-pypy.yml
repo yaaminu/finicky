@@ -1,0 +1,21 @@
+name: Publish Release To PyPI
+on: push
+
+jobs:
+  build-n-publish:
+    name: Build and publish release to PyPi
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up python
+        uses: actions/setup-python@1
+        with:
+          python-version: 2.7
+      - name: Build
+      - run: >-
+          python setup.py sdist bdist_wheel
+      - name: Publish To PyPi
+        if: startsWith(github.ref, 'refs/tags')
+        uses: pypa/gh-action-pypy-publish@master
+        with:
+          password: ${{secretes.PYPI_API_TOKEN}}
